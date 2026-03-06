@@ -5,16 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Department as DepartmentModel
 
 
-async def check_and_get_department_by_id(dept_id: int, session: AsyncSession):
-    dep_stmt = (
-        select(DepartmentModel).
-        where(DepartmentModel.id == dept_id)
-    )
-    dep_db = (await session.scalars(dep_stmt)).one_or_none()
+def check_department_exists(dep_db: DepartmentModel):
     if dep_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail=f"Department ID={dept_id} not found")
-    return dep_db
+                            detail=f"Department not found")
 
 
 async def validate_unique_name_in_parent(

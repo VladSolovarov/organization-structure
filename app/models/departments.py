@@ -21,7 +21,6 @@ class Department(Base):
     children: Mapped[list['Department']] = relationship(
         'Department',
         back_populates='parent',
-        remote_side='Department.id',
         uselist=True
     )
 

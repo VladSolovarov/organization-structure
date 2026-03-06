@@ -4,8 +4,9 @@ from app.schemas import Department as DepartmentSchema, DepartmentCreate
 
 from app.services import (
     create_and_get_department, update_and_get_department,
+    get_recursive_department_detail,
 )
-from app.validators import validate_no_cycle, check_and_get_department_by_id
+
 
 router = APIRouter(
     prefix='/departments',
@@ -15,14 +16,11 @@ router = APIRouter(
 
 @router.post('/', response_model=DepartmentSchema, status_code=201)
 async def create_department(
-        name: str = Query(min_length=1, max_length=200),
-        parent_id: int | None = None,
+        department: DepartmentCreate,
         session = Depends(get_async_session)
 ):
-    department = DepartmentCreate(name=name.strip(), parent_id=parent_id)
     department_db = await create_and_get_department(department, session)
     return department_db
-
 
 
 @router.get('/{department_id}')
@@ -31,13 +29,9 @@ async def get_department_detail(
         depth: int = Query(default=1, le=5, description="Depth of nested departments"),
         include_employees: bool = Query(default=True, description="Show employees in response"),
         session = Depends(get_async_session)
-) -> dict:
-    department_db = await check_and_get_department_by_id(department_id, session)
-    return {
-        'department': department_db,
-        'employees': '',
-        'children': ''
-    }
+):
+    response = await get_recursive_department_detail(department_id, depth, include_employees, session)
+    return response
 
 
 @router.patch('/{department_id}', response_model=DepartmentSchema)
@@ -47,7 +41,9 @@ async def update_department(
         parent_id: int | None = Body(default=None),
         session = Depends(get_async_session)
 ):
-    department_db = await update_and_get_department(department_id, name.strip(), parent_id, session)
+    if name is not None:
+        name = name.strip()
+    department_db = await update_and_get_department(department_id, name, parent_id, session)
     return department_db
 
 

@@ -1,7 +1,14 @@
-from dept_validators import (
-    check_and_get_department_by_id, validate_unique_name_in_parent,
+from .dept_validators import (
+    check_department_exists, validate_unique_name_in_parent,
     validate_no_cycle,
 )
 
+from .emp_validators import (
+    check_employee_exists,
+)
 
-__all__ = ['check_and_get_department_by_id', 'validate_unique_name_in_parent', 'validate_no_cycle']
+
+__all__ = [
+    'check_department_exists', 'validate_unique_name_in_parent',
+    'validate_no_cycle', 'check_employee_exists'
+]

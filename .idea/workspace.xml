@@ -4,7 +4,24 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5f051237-2fd7-4c48-b501-e95912622d7f" name="Changes" comment="start creating CRUD application" />
+    <list default="true" id="5f051237-2fd7-4c48-b501-e95912622d7f" name="Changes" comment="start creating CRUD application">
+      <change afterPath="$PROJECT_DIR$/app/services/common.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/app/validators/emp_validators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/main.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/models/departments.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/models/departments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/departments.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/departments.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/routers/employees.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/routers/employees.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/schemas/dept_schemas.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/schemas/dept_schemas.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/dept_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/dept_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/services/emp_services.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/services/emp_services.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/validators/__init__.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/__init__.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app/validators/dept_validators.py" beforeDir="false" afterPath="$PROJECT_DIR$/app/validators/dept_validators.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -20,9 +37,21 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 0
-}]]></component>
+  <component name="GitHubPullRequestSearchHistory">{
+  &quot;lastFilter&quot;: {
+    &quot;state&quot;: &quot;OPEN&quot;,
+    &quot;assignee&quot;: &quot;VladSolovarov&quot;
+  }
+}</component>
+  <component name="GithubPullRequestsUISettings">{
+  &quot;selectedUrlAndAccountId&quot;: {
+    &quot;url&quot;: &quot;https://github.com/VladSolovarov/organization-structure.git&quot;,
+    &quot;accountId&quot;: &quot;bad95df2-4c5f-4ad1-b628-e89514e61b2f&quot;
+  }
+}</component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 0
+}</component>
   <component name="ProjectId" id="3AUSkFTKgapCWMzwVFu4CYqkdJ5" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -32,8 +61,9 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.git.unshallow": "true",
     "git-widget-placeholder": "master",
-    "last_opened_file_path": "E:/PyProjects/OrganizationStructureAPI/app/schemas/department.py"
+    "last_opened_file_path": "E:/PyProjects/OrganizationStructureAPI/app/services/dept_services.py"
   }
 }]]></component>
   <component name="RecentsManager">
@@ -48,6 +78,19 @@
       <command value="pip install alembic" />
       <command value="pip install pydantic_settings" />
       <command value="pip install sqlalchemy_mixins" />
+      <command value="alembic init app/migrations" />
+      <command value="pip install acyncpg" />
+      <command value="pip install asyncpg" />
+      <command value="pip install greenlet" />
+      <command value="alembic init -t async app/migrations" />
+      <command value="pip freeze" />
+      <command value="alembic revision --autogenerate -m &quot;Initial migration for PostgreSQL&quot;" />
+      <command value="pip install &quot;uvicorn[standard]&quot;" />
+      <command value="uvicorn app:main.app" />
+      <command value="alembic revision --autogenerate -m" />
+      <command value="alembic revision --autogenerate" />
+      <command value="alembic upgrade head" />
+      <command value="uvicorn app.main:app" />
     </option>
   </component>
   <component name="SharedIndexes">
@@ -74,7 +117,15 @@
       <option name="project" value="LOCAL" />
       <updated>1772684497771</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="start creating CRUD application">
+      <option name="closed" value="true" />
+      <created>1772684572272</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1772684572272</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="VcsManagerConfiguration">
