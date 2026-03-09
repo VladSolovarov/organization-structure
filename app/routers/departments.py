@@ -1,10 +1,15 @@
 from app.db_depends import get_async_session
 from fastapi import APIRouter, Query, Body, Depends
-from app.schemas import Department as DepartmentSchema, DepartmentCreate
+
+from app.schemas import (
+    Department as DepartmentSchema,
+    DepartmentCreate,
+    DepartmentDeleteMode
+)
 
 from app.services import (
     create_and_get_department, update_and_get_department,
-    get_recursive_department_detail,
+    get_recursive_department_detail, delete_department_by_id
 )
 
 
@@ -47,11 +52,13 @@ async def update_department(
     return department_db
 
 
-@router.delete('/{department_id}', status_code=204)
+@router.delete('/{department_id}')
 async def delete_department(
         department_id: int,
-        mode: str = Query(pattern=r"^(cascade|reassign)$"),
+        mode: DepartmentDeleteMode,
         reassign_to_department_id: int | None = None,
         session = Depends(get_async_session)
 ):
-    ...
+    await delete_department_by_id(department_id, mode, reassign_to_department_id, session)
+    return {"status": "success",
+            "message": "department has been deleted"}

@@ -1,4 +1,4 @@
-from sqlalchemy import select, asc
+from sqlalchemy import select, asc, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Department as DepartmentModel, Employee as EmployeeModel
@@ -7,7 +7,7 @@ from app.validators import check_department_exists, check_employee_exists
 
 async def get_model_by_id(model_id: int,
                           model_class: type[EmployeeModel] | type[DepartmentModel],
-                          session: AsyncSession):
+                          session: AsyncSession) -> EmployeeModel | DepartmentModel:
     stmt = (
         select(model_class).
         where(model_class.id == model_id)
@@ -40,3 +40,13 @@ async def get_employees_by_department_id(dept_id: int, session: AsyncSession):
     )
     emp_db = (await session.scalars(emp_stmt)).all()
     return emp_db
+
+
+async def reassign_employees_to_department(dept_id: int,
+                                           reassign_to_dept_id: int,
+                                           session: AsyncSession):
+    await session.execute(
+        update(EmployeeModel)
+        .where(EmployeeModel.department_id == dept_id)
+        .values(department_id=reassign_to_dept_id)
+    )

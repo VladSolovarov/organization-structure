@@ -15,13 +15,15 @@ class Department(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     name: Mapped[str] = mapped_column(String(200), nullable=False)
-    parent_id: Mapped[int | None] = mapped_column(ForeignKey('departments.id'), nullable=True)
+    parent_id: Mapped[int | None] = mapped_column(ForeignKey('departments.id', ondelete='CASCADE'), nullable=True)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     children: Mapped[list['Department']] = relationship(
         'Department',
         back_populates='parent',
-        uselist=True
+        uselist=True,
+        cascade='all, delete-orphan',
+        passive_deletes=True
     )
 
     parent: Mapped['Department | None'] = relationship(
@@ -35,5 +37,6 @@ class Department(Base):
         'Employee',
         uselist=True,
         back_populates='department',
-        cascade='all, delete-orphan'
+        cascade='all, delete-orphan',
+        passive_deletes=True
     )

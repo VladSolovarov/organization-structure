@@ -9,7 +9,7 @@ class Employee(Base):
     __tablename__ = 'employees'
 
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
-    department_id: Mapped[int] = mapped_column(ForeignKey('departments.id'), nullable=False)
+    department_id: Mapped[int] = mapped_column(ForeignKey('departments.id', ondelete='CASCADE'), nullable=False)
     full_name: Mapped[str] = mapped_column(String(200), nullable=False)
     position: Mapped[str] = mapped_column(String(200), nullable=False)
     hired_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
@@ -17,5 +17,5 @@ class Employee(Base):
 
     department: Mapped['Department'] = relationship(
         'Department',
-        back_populates='employees'
+        back_populates='employees',
     )

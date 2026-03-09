@@ -6,7 +6,7 @@ from app.models import Employee as EmployeeModel
 from app.schemas import Employee as EmployeeSchema, EmployeeCreate
 from app.services import get_employee_by_id, create_and_get_employee
 
-router = APIRouter()
+router = APIRouter(tags=['employees'])
 
 
 @router.get('/employees/{employee_id}', response_model=EmployeeSchema)

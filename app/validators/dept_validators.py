@@ -5,8 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import Department as DepartmentModel
 
 
-def check_department_exists(dep_db: DepartmentModel):
-    if dep_db is None:
+def check_department_exists(dept_db: DepartmentModel | None) -> None:
+    if dept_db is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
                             detail=f"Department not found")
 
@@ -15,14 +15,15 @@ async def validate_unique_name_in_parent(
         name: str,
         parent_id: int | None,
         session: AsyncSession,
-):
-    dep_stmt = (
+) -> None:
+    dept_stmt = (
         select(DepartmentModel)
-        .where(DepartmentModel.id == parent_id,
-               DepartmentModel.name == name)
+        .where(
+            DepartmentModel.parent_id == parent_id,
+            DepartmentModel.name == name)
     )
-    dep_db = (await session.scalars(dep_stmt)).one_or_none()
-    if dep_db is not None:
+    dept_db = (await session.scalars(dept_stmt)).one_or_none()
+    if dept_db is not None:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                             detail=f"Name '{name}' already exists in current parent")
 
@@ -57,4 +58,32 @@ async def validate_no_cycle(
                             detail="Cannot create circular reference")
 
 
+
+def validate_reassign_mode(dept_id: int,
+                                 reassign_to_dept_id: int):
+    if not type(reassign_to_dept_id) is int:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="'reassign mode' requires reassign to department id (integer)")
+
+    if dept_id == reassign_to_dept_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail='cannot reassign to itself')
+
+
+async def validate_no_child_department(
+        parent_id: int,
+        child_id: int,
+        session: AsyncSession
+) -> None:
+    child_exception = HTTPException(status_code=status.HTTP_409_CONFLICT,
+                            detail='cannot reassign to child department')
+
+    if parent_id == child_id:
+        raise child_exception
+
+    child = await session.get(DepartmentModel, child_id)
+    while child and child.parent_id:
+        if child.parent_id == parent_id:
+            raise child_exception
+        child = await session.get(DepartmentModel, child.parent_id)
 

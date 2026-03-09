@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated
+from enum import Enum
 
 from pydantic import BaseModel, Field, ConfigDict
 
@@ -26,3 +27,8 @@ class Department(DepartmentBase):
 
 class DepartmentCreate(DepartmentBase):
     pass
+
+
+class DepartmentDeleteMode(str, Enum):
+    CASCADE = 'cascade'
+    REASSIGN = 'reassign'

@@ -1,14 +1,22 @@
+from typing import Sequence
+
 from sqlalchemy import select, update
 
-from app.schemas.dept_schemas import DepartmentCreate
+from app.schemas import DepartmentDeleteMode, DepartmentCreate
 from app.models import Department as DepartmentModel
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.services.common import get_department_by_id, get_employees_by_department_id
+from app.services.common import (
+    get_department_by_id,
+    get_employees_by_department_id,
+    reassign_employees_to_department,
+)
+
 from app.validators import (
     validate_unique_name_in_parent,
-    validate_no_cycle,
+    validate_no_cycle, validate_reassign_mode,
+    validate_no_child_department,
 )
 
 
@@ -17,13 +25,12 @@ async def get_recursive_department_detail(
         depth: int,
         include_employees: bool,
         session: AsyncSession,
-):
-
-    dep_db = await get_department_by_id(dept_id, session)
+) -> dict[str, str | int | Sequence | list]:
+    dept_db = await get_department_by_id(dept_id, session)
     base = {
-        'id': dep_db.id,
-        'name': dep_db.name,
-        'parent_id': dep_db.parent_id,
+        'id': dept_db.id,
+        'name': dept_db.name,
+        'parent_id': dept_db.parent_id,
     }
     if include_employees:
         base |= {'employees': await get_employees_by_department_id(dept_id, session)}
@@ -38,40 +45,66 @@ async def get_recursive_department_detail(
             await get_recursive_department_detail(
                 child.id, depth - 1, include_employees, session)
         )
-    base['children'] = under_departments
+
+    if under_departments:
+        base |= {'children': under_departments}
+
     return base
 
 
+async def delete_department_by_id(
+        dept_id: int,
+        mode: DepartmentDeleteMode,
+        reassign_to_dept_id: int | None,
+        session: AsyncSession
+) -> None:
+    dept = await get_department_by_id(dept_id, session)
 
-async def get_children_by_id(dept_id: int, session: AsyncSession):
-    dep_stmt = (
+    if mode == DepartmentDeleteMode.REASSIGN:
+        await get_department_by_id(reassign_to_dept_id, session)
+        validate_reassign_mode(dept_id, reassign_to_dept_id)
+        await validate_no_child_department(dept_id, reassign_to_dept_id, session)
+        await reassign_employees_to_department(dept_id, reassign_to_dept_id, session)
+
+    await session.delete(dept)
+    await session.commit()
+
+
+async def get_children_by_id(dept_id: int,
+                             session: AsyncSession) -> Sequence[DepartmentModel]:
+    dept_stmt = (
         select(DepartmentModel)
         .where(DepartmentModel.parent_id == dept_id)
     )
-    return (await session.scalars(dep_stmt)).all()
+    return (await session.scalars(dept_stmt)).all()
 
 
-async def create_and_get_department(dep_data: DepartmentCreate, session: AsyncSession):
-    if dep_data.parent_id is not None:
-        await get_department_by_id(dep_data.parent_id, session) # Error if department not found
-    await validate_unique_name_in_parent(dep_data.name, dep_data.parent_id, session) # Error if name already exists in the same parent
+async def create_and_get_department(dept_data: DepartmentCreate,
+                                    session: AsyncSession):
+    if dept_data.parent_id is not None:
+        await get_department_by_id(dept_data.parent_id, session) # Error if department not found
+    await validate_unique_name_in_parent(dept_data.name, dept_data.parent_id, session) # Error if name already exists in the same parent
 
-    department = DepartmentModel(**dep_data.model_dump())
+    department = DepartmentModel(**dept_data.model_dump())
     session.add(department)
     await session.commit()
     await session.refresh(department)
     return department
 
 
-async def update_and_get_department(dept_id: int, name: str | None,
-                                    new_parent_id: int | None, session: AsyncSession):
-    dep_db = await get_department_by_id(dept_id, session)
+async def update_and_get_department(
+        dept_id: int,
+        name: str | None,
+        new_parent_id: int | None,
+        session: AsyncSession,
+):
+    dept_db = await get_department_by_id(dept_id, session)
     values_for_update = dict()
-    if name:
+    if name is not None:
         await validate_unique_name_in_parent(name, dept_id, session)
         values_for_update |= {'name': name}
 
-    if new_parent_id:
+    if new_parent_id is not None:
         await get_department_by_id(new_parent_id, session)
         await validate_no_cycle(dept_id, new_parent_id, session)
         values_for_update |= {'parent_id': new_parent_id}
@@ -82,5 +115,7 @@ async def update_and_get_department(dept_id: int, name: str | None,
         .values(**values_for_update)
     )
     await session.commit()
-    await session.refresh(dep_db)
-    return dep_db
+    await session.refresh(dept_db)
+    return dept_db
+
+
